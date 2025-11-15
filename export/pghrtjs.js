@@ -5,7 +5,6 @@ function initTocOnClick() {
 
 	for (const coll of colls) {
 		coll.addEventListener("click", (event) => {
-			coll.classList.toggle("active");
 			const content = coll.nextElementSibling;
 			if (content) {
 				if (content.style.maxHeight) {
@@ -117,39 +116,67 @@ function saveScroll() {
 	const colls = document.querySelectorAll(".ltx_ref");
 
 	for (const coll of colls) {
-		coll.addEventListener("click", () => {
-			document.getElementById("return").classList.add("show"); // only fires once
-
-			const pos = window.scrollY;
-			const scrollArray = JSON.parse(sessionStorage.getItem("scrollPos") ?? "[]");
-			if (scrollArray[0] !== Math.round(pos)) {
-				scrollArray.unshift(Math.round(pos));
-				sessionStorage.setItem("scrollPos", JSON.stringify(scrollArray));
+		coll.addEventListener("click", function(event) {
+			//only applies the "active" class to the ToC items (put here to prevent a race condition)
+			if (this.parentElement.classList.contains("ltx_tocentry_section")) {
+				const isActive = this.classList.toggle("active");
+				if (!isActive) return;
 			}
+			
+			const scrollPos = Math.floor(window.scrollY);
+			const linkedElement = document.querySelector(this.getAttribute("href").replaceAll(".", "\\2E")); // \\2E is "."
+			const linkedElementScrollPos = linkedElement ? scrollPos + Math.floor(linkedElement.getBoundingClientRect().y) : 0;
+			const scrollArray = getScrollArray();
+			if (
+				(scrollPos === 0 && scrollArray.length > 0)
+				|| (scrollPos > 0 && scrollArray[0] !== scrollPos)
+				|| (scrollPos > 0 && linkedElementScrollPos !== scrollArray[0])
+			) {
+				scrollArray.unshift(scrollPos);
+				updateScrollArray(scrollArray);
+			}
+			
+			updateReturn(scrollArray);
 		});
+	}
+}
+
+function getScrollArray() {
+	return JSON.parse(sessionStorage.getItem("scrollPos") ?? "[]").map(num => Number(num));
+}
+
+function updateScrollArray(scrollArray=[]) {
+	sessionStorage.setItem("scrollPos", JSON.stringify(scrollArray));
+}
+
+function updateReturn(scrollArray) {
+	if (typeof scrollArray === "object" && scrollArray.length > 0) {
+		document.getElementById("return").classList.add("show"); // only fires once
 	}
 }
 
 // it returns to scroll positions stored in the array "scrollPos"
 function returnScroll() {
-	const ret = document.getElementById("return");
-	ret.addEventListener("click", () => {
+	document.getElementById("return").addEventListener("click", function(event) {
 
-		const scrollArray = JSON.parse(sessionStorage.getItem("scrollPos") ?? "[]").map(num => Number(num));
+		const scrollArray = getScrollArray();
 		// check if saved, otherwise goto top and remove back arrow
 		if (scrollArray.length > 1) {
-			let pos = scrollArray.shift();
+			let scrollPos = scrollArray.shift();
+			while (scrollPos === Math.floor(window.scrollY) && scrollArray.length > 0) {
+				scrollPos = scrollArray.shift();
+			}
 			sessionStorage.setItem("scrollPos", JSON.stringify(scrollArray));
-			window.scroll(0, pos);
+			window.scroll(0, scrollPos);
 		}
 		else if (scrollArray.length === 1) {
-			ret.classList.remove("show");
-			let pos = scrollArray.shift();
+			this.classList.remove("show");
+			let scrollPos = scrollArray.shift();
 			sessionStorage.setItem("scrollPos", JSON.stringify(scrollArray));
 			// scroll to top
-			window.scroll(0, pos);
+			window.scroll(0, scrollPos);
 		} else {
-			ret.classList.remove("show");
+			this.classList.remove("show");
 			// scroll to top
 			window.scroll(0, 0);
 		}
