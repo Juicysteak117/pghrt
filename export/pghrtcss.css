@@ -86,6 +86,10 @@ body {
   display: none;
 }
 
+#cute {
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
 
 .ltx_TOC a:link,
 .ltx_TOC a:visited,

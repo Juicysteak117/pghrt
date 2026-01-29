@@ -4,13 +4,14 @@ import os
 import csv
 import sys
 
-
 # TO DO
 # 1. soup the toc title text to be accurate
 # 2. maybe figure out the href title text for external hrefs?
 # 3. add alt text to images???
-# 4. make the language links auto-generate via soup not tex
-# 5. parametrize the header tags with touples (why didn't i do this sooner? so obvious)
+# 4. fix "refer to caption" localization!!!
+
+# MUST ADD FOR NEW LANGS
+lang_flags = {'en': '🇺🇸 English', 'de': '🇩🇪 Deutsch', 'fr': '🇫🇷 Français'}
 
 #
 # begin parsing file
@@ -26,30 +27,22 @@ if len(sys.argv) > 2:
     print("TOO MANY LANGUAGE CODES. Usage: python soup.py <language code>") 
     sys.exit(1) 
 
-# check if it's a currently supported language. idk how you'd miss this up but it's a typo check basically
-language = sys.argv[1]
-
-# debugging check
-print("Language used: ",language)
-
 # build spice cabinet to make soup for each language
 # file path relative to main. example: trans/de/spices_de.csv
-language_path = os.path.join("trans",language)
-spice_file = "spices_" + language + ".csv"
+language = sys.argv[1]
+spice_name = "spices_" + language + ".csv"
+cabinet_file = os.path.join("trans",language,spice_name)
+print("Language used: ",language)
 
 # choose file for language
-# en carve out to be default index.html
-# en carve out for pdf file name as well
-# en carve out for cabinet file
+# en carve out for mandatory index.html and no subdomain
 if language == "en":
-    html_file = os.path.join("export","index.html")
+    html_loc_name = "index.html"
     og_url_tag = "https://pghrt.diy"
-    cabinet_file = spice_file
 else:
     html_loc_name = language + ".html"
-    html_file = os.path.join("export",html_loc_name)
     og_url_tag = "https://" + language + ".pghrt.diy"
-    cabinet_file = os.path.join(language_path,spice_file)
+html_file = os.path.join("export",html_loc_name)
 
 if not os.path.isfile(html_file):
     print("ERROR:",html_file,"DOES NOT EXIST. Is your language code wrong or did you not build the HTML?")
@@ -70,6 +63,10 @@ with open(cabinet_file, encoding='utf-8') as csvfile:
 # Parse the file into soup
 with open(html_file, 'r', encoding='utf-8') as fin:
     soup = BeautifulSoup(fin, 'html.parser')
+
+#
+# rearrange html structure
+#
 
 # Create menu button, header, and nest
 menu = soup.new_tag(
@@ -96,7 +93,7 @@ menu = soup.new_tag(
 )
 toggles.append(menu)
 
-# Extract nav
+# Extract table of contents navigation
 toc = soup.body.find('div', class_='ltx_page_main').nav.extract()
 
 # need id to grab to make the menu button work
@@ -123,71 +120,46 @@ ref = soup.new_tag (
     title=cabinet[1]
 )
 
-# prepend bottom with all the silly stuff i add
+# prepend body with buttons and rearranged table of contents
 soup.body.insert(0, toast, ref, toggles, header, toc)
 
-# Add header info tags
-# i don't know if there's a better way to do all of these in a batch but like eh w/e
+#
+# add html header info
+#
+
+# meta: (property, content)
 # localization position 2: "A Practical Guide To Feminizing HRT"
 # localization position 3: "The futile attempt yadda yadda"
+meta_headers = [
+    ('og:title', cabinet[2]),
+    ('og:type', 'website'),
+    ('og:url', og_url_tag),
+    ('og:image', 'https://pghrt.diy/img/cover.png'),
+    ('og:description', cabinet[3])
+]
 
-head_meta = soup.new_tag(
+# links: (rel, type, href)
+link_headers = [
+    ('icon', 'image/png', 'https://pghrt.diy/img/favicon.png'),
+    ('stylesheet', 'text/css', 'https://pghrt.diy/pghrtcss.css')
+]
+
+for attribs in meta_headers:
+    head_meta = soup.new_tag(
     'meta',
-    property='og:title',
-    content=cabinet[2],
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
+    property=attribs[0],
+    content=attribs[1],
+    )
+    soup.head.extend([head_meta,"\n"])
 
-head_meta = soup.new_tag(
-    'meta',
-    property='og:type',
-    content='website',
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
-
-head_meta = soup.new_tag(
-    'meta',
-    property='og:url',
-    content=og_url_tag,
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
-
-head_meta = soup.new_tag(
-    'meta',
-    property='og:image',
-    content='https://pghrt.diy/img/cover.png',
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
-
-head_meta = soup.new_tag(
-    'meta',
-    property='og:description',
-    content=cabinet[3],
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
-
-head_meta = soup.new_tag(
+for attribs in link_headers:
+    head_meta = soup.new_tag(
     'link',
-    rel='icon',
-    type='image/png',
-    href='https://pghrt.diy/img/favicon.png'
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
-
-head_meta = soup.new_tag(
-    'link',
-    rel='stylesheet',
-    type='text/css',
-    href='https://pghrt.diy/pghrtcss.css'
-)
-soup.head.append(head_meta)
-soup.head.append("\n")
+    rel=attribs[0],
+    type=attribs[1],
+    href=attribs[2],
+    )
+    soup.head.extend([head_meta,"\n"])
 
 head_meta = soup.new_tag(
     'script',
@@ -195,8 +167,11 @@ head_meta = soup.new_tag(
     src='https://pghrt.diy/pghrtjs.js',
     defer='true'
 )
-soup.head.append(head_meta)
-soup.head.append("\n")
+soup.head.extend([head_meta,"\n"])
+
+#
+# content manipulation and adjustment
+#
 
 # find all the section and question headers then add a click to copy icon
 # localization position 4: "Click to copy"
@@ -212,23 +187,49 @@ for element in soup.find_all(["h2", "h3"]):
         onclick="copyURI(event)",
         string=' 🔗',
     )
-
     element.append(new_chain)
 
-# changing pdf link for non-english language
-# hosted on github because that keeps the site lighter under cloudflare's limit
-if language != "en":
-    soup.find(href="https://raw.githubusercontent.com/Juicysteak117/pghrt/refs/heads/main/pdfs/pghrt.pdf")['href'] = "https://raw.githubusercontent.com/Juicysteak117/pghrt/refs/heads/main/pdfs/" + language + ".pdf"
+# changing pdf link
+# hosted on github because that keeps the site lighter under cloudflare's 25mb limit
+soup.find(href="PDF_LINK")['href'] = "https://raw.githubusercontent.com/Juicysteak117/pghrt/refs/heads/main/pdfs/pghrt_" + language + ".pdf"
 
-# appending "img/" to source of images for the html
+# appending asset links to source of images for the html
 # can't get latexml to play nice with graphicspath so this is easier
 for element in soup.select('figure > img'):
     old_string = element['src']
     element['src'] = 'https://pghrt.diy/img/' + old_string
 
-# hardcoding the asset links so it plays nice with the subdomain
+# hardcoding the other asset links so it plays nice with the subdomain
 soup.find(href="LaTeXML.css")['href'] = "https://pghrt.diy/LaTeXML.css"
 soup.find(href="ltx-article.css")['href'] = "https://pghrt.diy/ltx-article.css"
+
+# insert language flag links
+lang_links = soup.find('p', string="LANGUAGE-CODE-DOT-PGHRT-DOT-DIY")
+lang_links.clear()
+first_flag = True
+for lc, flag in lang_flags.items():
+    url = "https://" + lc + ".pghrt.diy"
+    new_flag = soup.new_tag(
+        'a',
+        **{'class':'ltx_ref ltx_href'},
+        href=url,
+        title=flag,
+        string=flag,
+    )
+    if not first_flag:
+        lang_links.append(', ')
+    first_flag = False
+    lang_links.append(new_flag)
+
+# adding an 88x31 button because omg isn't she so cute!???
+# what a great suggestion. ty acrylic!!!
+# made using: https://hekate2.github.io/buttonmaker/
+cute = soup.new_tag(
+    'img',
+    id='cute',
+    src="https://pghrt.diy/img/pghrt_88x31.png"
+)
+soup.find('section',id="Sx1").insert(0,cute)
 
 # replacing \DTMNow with the footer timestamp because there aren't latexml
 # bindings for the datetime2 package and i want it to look prettier
@@ -241,6 +242,10 @@ timestamp = soup.footer.div.contents[0]
 postmarked = timestamp.text.replace("Generated  on ", "Generated on ")
 timestamp.replace_with(postmarked)
 dtm.string = postmarked.replace("Generated on ", "").replace(" by ", "")
+
+#
+# garnish and serve
+#
 
 # i'm at soup
 print("soup made for language: ",language)
