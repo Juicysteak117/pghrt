@@ -24,6 +24,8 @@ Completed languages: English (obviously!), German, French
 ## Setting Up
 This project is reliant on `LaTeXML` and owes deep gratitute for its existence. Install it [here](https://math.nist.gov/~BMiller/LaTeXML/get.html), and please support it if you can!
 
+For building the files, you'll need Node.js.
+
 You might also need to install `texlive-latex-extra` with your package manager of choice, or specific missing packages through [MiKTeX](https://miktex.org/) if you prefer a lighter weight LaTeX installation. This project was created using Visual Studio Code so `/.vscode/` is included for your convenience for the build task in `tasks.json`.
 
 ### Linux
@@ -31,7 +33,7 @@ You might also need to install `texlive-latex-extra` with your package manager o
 ```bash
 cd pghrt
 python3 -m venv .venv
-.venv/bin/pip install beautifulsoup4
+.venv/bin/pip install requirements.txt
 ```
 
 ### Windows
@@ -39,12 +41,12 @@ python3 -m venv .venv
 ```bash
 cd pghrt
 python -m venv .venv
-.venv/scripts/pip install beautifulsoup4
+.venv/scripts/pip install requirements.txt
 ```
 
 ## Build Instructions
 
-Currently, `/export/` contains the build output for the HTML files whereas `/pdfs/` contains the PDFs. To compile and build the source yourself, run the `build_all.ps1` file. You can select a language or build all of them. Assuming you have all the dependencies, there should be nothing else needed. The process for each language is making the PDF (then cleaning the auxillary files), making the HTML, then altering the HTML.
+Currently, `/export/` contains the build output for the HTML files whereas `/pdfs/` contains the PDFs. To compile and build the source yourself, run `npm run build`. You can select a language or build all of them. Assuming you have all the dependencies, there should be nothing else needed. The process for each language is making the PDF (then cleaning the auxillary files), making the HTML, then altering the HTML.
 
 Please note that the `\DTMNow` error and the `No graphical source found` warnings in the output of `latexmlc` should be ignored as they are handled by `soup.py`. There will also be a compile error unless the Python 3 package BeautifulSoup version 4.14+ is installed. `soup.py` manages the HTML post-processing and localization for each language according to the ISO 639 language code (LC) using the constitute `spices_[LC].csv` components in `/trans/[LC]/`.
 
