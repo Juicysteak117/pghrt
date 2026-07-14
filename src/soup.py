@@ -18,12 +18,12 @@ lang_flags = {'en': '🇺🇸 English', 'de': '🇩🇪 Deutsch', 'fr': '🇫�
 #
 
 # check if a code is used
-if len(sys.argv) < 2: 
+if len(sys.argv) < 2:
     print("MISSING LANGUAGE CODE. Usage: python soup.py <language code>") 
     sys.exit(1) 
 
 # check if too many codes are used for some reason
-if len(sys.argv) > 2: 
+if len(sys.argv) > 2:
     print("TOO MANY LANGUAGE CODES. Usage: python soup.py <language code>") 
     sys.exit(1) 
 
