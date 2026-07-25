@@ -8,16 +8,16 @@ This is the source code, just in case you wanted to build it yourself for some r
 
 If you are interested in doing a translation or some sort of alternate version, please get in touch! A number of languages are already in the works, but the more the merrier.
 
-Localizing instructions: a copy of the `/trans/en/pghrt_en.tex` file should be edited in place, named after the ISO 639 language code for the target language. You can (or I can help you) use the `babel` package if necessary, but keep in mind that the typesetting priority is the HTML webpage rather than the PDF which has differing goals and limitations. You can skip the "Changelog" section (ideally these are language specific) and add clear translator notes wherever it seems appropriate (i.e., explaining particular phrases or providing relevant local information). Additionally, leave `LANGUAGE-CODE-DOT-PGHRT-DOT-DIY` and `PDF_LINK` as they are beacuse those are automatically handled via `soup.py`.
+Localizing instructions: a copy of the `/trans/en/pghrt_en.tex` file should be edited in place, named after the ISO 639 language code for the target language. You can (or I can help you) use the `babel` package if necessary, but keep in mind that the typesetting priority is the HTML webpage rather than the PDF which has differing goals and limitations. You can skip the "Changelog" section (ideally these are language specific) and add clear translator notes wherever it seems appropriate (i.e., explaining particular phrases or providing relevant local information). Additionally, leave `LANGUAGE-CODE-DOT-PGHRT-DOT-DIY` and `PDF_LINK` as they are because those are automatically handled via `soup.py`.
 
-The `/trans/en/spices_en.csv` file will also need to be updated to localize parts of the webpage. Look to German in `/trans/de/` for an example. Talk to me as you need then submit a Pull Request adding the folder (or I can do it if you don't have a GitHub account). No need to worry about the build process; I have that part covered.
+The `/trans/en/spices_en.csv` file will also need to be updated to localize parts of the webpage, as will `/export/img/cover_en.png` (the font is Segoe UI if you'd like to do it yourself, or just tell me the phrase and I'll do it). Look to German in `/trans/de/` for an example. Talk to me as you need then submit a Pull Request adding the folder (or I can do it if you don't have a GitHub account). No need to worry about the build process to produce the HTML or PDF files; I have that part covered.
 
 
 ### Language Statuses
 
-Desired languages: Portuguese (decent overlap in my audience), Mandarin (lot of speakers!), Korean (inexplicably a lot of traffic from SK), anything someone is interested in doing (never hurts!)
+Desired languages: Korean (inexplicably a lot of traffic from SK), anything someone is interested in doing (never hurts!)
 
-Current list of WIP languages: Polish, Czech, Norweigan, Spanish, Dutch, Indonesian, Russian, Ukranian, Danish (tentatively)
+Current list of WIP languages: Polish, Czech, Norweigan, Spanish, Dutch, Indonesian, Ukranian, Russian (tentatively, after Ukranian), Danish (tentatively), Chinese (Simplified; maybe later Traditional), Portuguese (European), Portuguese (Brazilian)
 
 Completed languages: English (obviously!), German, French
 

@@ -34,7 +34,7 @@ spice_name = "spices_" + language + ".csv"
 cabinet_file = os.path.join("trans",language,spice_name)
 print("Language used: ",language)
 
-# choose file for language
+# choose html and cover for language
 # en carve out for mandatory index.html and no subdomain
 if language == "en":
     html_loc_name = "index.html"
@@ -43,6 +43,7 @@ else:
     html_loc_name = language + ".html"
     og_url_tag = "https://" + language + ".pghrt.diy"
 html_file = os.path.join("export",html_loc_name)
+cover_tag = "https://pghrt.diy/img/cover_" + language + ".png"
 
 if not os.path.isfile(html_file):
     print("ERROR:",html_file,"DOES NOT EXIST. Is your language code wrong or did you not build the HTML?")
@@ -134,7 +135,7 @@ meta_headers = [
     ('og:title', cabinet[2]),
     ('og:type', 'website'),
     ('og:url', og_url_tag),
-    ('og:image', 'https://pghrt.diy/img/cover.png'),
+    ('og:image', cover_tag),
     ('og:description', cabinet[3])
 ]
 
