@@ -150,6 +150,7 @@ a.ltx_LaTeXML_logo:visited {
 .ltx_TOC.show {
   width: 100vw;
   visibility: visible;
+  z-index: 2;
 }
 
 .ltx_border_tt, .ltx_border_t, .ltx_border_bb {
