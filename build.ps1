@@ -9,7 +9,7 @@ $trash = "/nul"
 
 # currently supported languages; source of truth BUT soup.py will need the flags!
 # english (en), german (de), 
-$languages = @("en", "de", "fr")
+$languages = @("en", "de", "fr", "es")
 $output = $languages -join ", "
 
 # temp bug workaround
